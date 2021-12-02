@@ -26,7 +26,7 @@ fn part1() !void {
 
         prev = curr;
     }
-    std.debug.print("Day 01: Number of increases: {d}\n", .{num_inc});
+    std.debug.print("Day 01, part 1: Number of increases: {d}\n", .{num_inc});
 }
 
 fn part2() !void {
@@ -57,7 +57,7 @@ fn part2() !void {
         }
         prev_win_sum = win_sum;
     }
-    std.debug.print("Day 02: Number of windowed increases: {d}\n", .{num_inc});
+    std.debug.print("Day 01, part 2: Number of windowed increases: {d}\n", .{num_inc});
 }
 
 pub fn main() anyerror!void {
