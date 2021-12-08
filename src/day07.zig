@@ -2,7 +2,7 @@ const std = @import("std");
 
 const data = @embedFile("../data/day07_input");
 
-fn part1(positions: []u16) !void {
+fn part1(positions: []u16) void {
     var max: u16 = 0;
     for (positions) |p| {
         max = if (p > max) p else max;
@@ -10,6 +10,8 @@ fn part1(positions: []u16) !void {
 
     // Setting the derivative of a sum of square roots doesn't seem easy, try brute force.
     var best_case: usize = std.math.maxInt(usize);
+
+    // TODO: A prefix sum would make this faster btw.
 
     var i: u16 = 0;
     while (i < max) : (i += 1) {
@@ -31,6 +33,7 @@ fn part1(positions: []u16) !void {
     std.debug.print("Day 07, part 1: best case fuel = {}\n", .{best_case});
 }
 
+// TODO: too similar to part1, merge.
 fn part2(positions: []u16) void {
     var max: u16 = 0;
     for (positions) |p| {
@@ -82,6 +85,6 @@ pub fn main() anyerror!void {
     //}
     //std.debug.print("\n", .{});
 
-    try part1(positions.items);
+    part1(positions.items);
     part2(positions.items);
 }
