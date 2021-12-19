@@ -29,6 +29,9 @@ const Tree = struct {
     pub fn deinit(self: *Tree) void {
         self.nodes.deinit();
     }
+    pub fn reset(self: *Tree) void {
+        self.nodes.clearRetainingCapacity();
+    }
 
     pub fn allocNode(self: *Tree, node: Node) !usize {
         const return_idx = self.nodes.items.len;
@@ -252,7 +255,47 @@ fn part1() !void {
     std.debug.print("Day 18, part 1: magnitude = {}\n", .{magnitude});
 }
 
+fn part2() !void {
+    var tree = Tree.init(gpa);
+    defer tree.deinit();
+
+    var max: usize = 0;
+
+    var line_it1 = std.mem.tokenize(u8, data, "\r\n");
+    while (line_it1.next()) |line1| {
+        var line_it2 = std.mem.tokenize(u8, data, "\r\n");
+        while (line_it2.next()) |line2| {
+            if (std.mem.eql(u8, line1, line2)) {
+                continue;
+            }
+
+            tree.reset();
+
+            // TODO: Parsing these over and over again is a waste.
+            try parseLine(line1, &tree);
+            const tree1_idx = tree.nodes.items.len - 1;
+            try parseLine(line2, &tree);
+            const tree2_idx = tree.nodes.items.len - 1;
+
+            const combined_root_idx = try tree.allocNode(.{
+                .parent_idx = null,
+                .data = .{ .parent = .{
+                    .left_idx = tree1_idx,
+                    .right_idx = tree2_idx,
+                } },
+            });
+
+            while (try tree.reduce(combined_root_idx)) {}
+            const score = tree.score(combined_root_idx);
+            if (score > max) {
+                max = score;
+            }
+        }
+    }
+
+    std.debug.print("Day 18, part 2: max pair sum magnitude = {}\n", .{max});
+}
 pub fn main() anyerror!void {
     try part1();
-    std.debug.print("Day 18, part 2:\n", .{});
+    try part2();
 }
