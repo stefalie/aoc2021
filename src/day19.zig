@@ -120,70 +120,14 @@ fn relativePos(positions1: []Vec3, positions2: []Vec3) ?Trafo {
     return null;
 }
 
-fn part1(scanners: *std.ArrayList(std.ArrayList(Vec3))) !void {
-    //const tmp = Vec3.init(1, 2, 3);
-    //var i: usize = 0;
-    //while (i < 24) : (i += 1) {
-    //    tmp.swizzle(i).print();
-    //    std.debug.print("\n", .{});
-    //}
-
-    var trafos_to_parent = std.ArrayList(?Trafo).init(gpa);
-    defer {
-        trafos_to_parent.deinit();
+fn transformToRoot(trafos_to_parent: []?Trafo, scanner_idx: usize, pos: Vec3) Vec3 {
+    var p = pos;
+    var maybe_parent = trafos_to_parent[scanner_idx];
+    while (maybe_parent) |trafo| {
+        p = p.swizzle(trafo.orient_idx).sub(trafo.rel_pos);
+        maybe_parent = trafos_to_parent[trafo.parent_idx];
     }
-    try trafos_to_parent.appendNTimes(null, scanners.items.len);
-
-    var lookat_next = std.ArrayList(usize).init(gpa);
-    defer lookat_next.deinit();
-    try lookat_next.append(0);
-
-    while (lookat_next.popOrNull()) |idx1| {
-        const s1 = scanners.items[idx1];
-        for (scanners.items) |s2, idx2| {
-            if (idx2 == 0) {
-                continue;
-            }
-            if (trafos_to_parent.items[idx2]) |_| {
-                // We already know how to get from idx2 -> 0
-                continue;
-            }
-            std.debug.print("Looking for trafo of scanners {} and {}\n", .{ idx1, idx2 });
-
-            if (relativePos(s1.items, s2.items)) |trafo| {
-                std.debug.print("Trafo of scanners {} and {}: orient swizzle {}, relative position {}\n", .{
-                    idx1,
-                    idx2,
-                    trafo.orient_idx,
-                    trafo.rel_pos,
-                });
-
-                trafos_to_parent.items[idx2] = .{
-                    .parent_idx = idx1,
-                    .orient_idx = trafo.orient_idx,
-                    .rel_pos = trafo.rel_pos,
-                };
-                try lookat_next.append(idx2);
-            }
-        }
-    }
-
-    var uniquePositions = std.AutoHashMap(u64, void).init(gpa);
-    defer uniquePositions.deinit();
-    for (scanners.items) |s, idx| {
-        for (s.items) |pos| {
-            var p = pos;
-            var maybe_parent = trafos_to_parent.items[idx];
-            while (maybe_parent) |trafo| {
-                p = p.swizzle(trafo.orient_idx).sub(trafo.rel_pos);
-                maybe_parent = trafos_to_parent.items[trafo.parent_idx];
-            }
-
-            try uniquePositions.put(p.uniqueHash(), {});
-        }
-    }
-
-    std.debug.print("Day 19, part 1: num unique beacons = {}\n", .{uniquePositions.count()});
+    return p;
 }
 
 pub fn main() !void {
@@ -218,6 +162,81 @@ pub fn main() !void {
     //    std.debug.print("\n", .{});
     //}
 
-    try part1(&scanners);
-    std.debug.print("Day 19, part 2:\n", .{});
+    //const tmp = Vec3.init(1, 2, 3);
+    //var i: usize = 0;
+    //while (i < 24) : (i += 1) {
+    //    tmp.swizzle(i).print();
+    //    std.debug.print("\n", .{});
+    //}
+
+    var trafos_to_parent = std.ArrayList(?Trafo).init(gpa);
+    defer {
+        trafos_to_parent.deinit();
+    }
+    try trafos_to_parent.appendNTimes(null, scanners.items.len);
+
+    var lookat_next = std.ArrayList(usize).init(gpa);
+    defer lookat_next.deinit();
+    try lookat_next.append(0);
+
+    while (lookat_next.popOrNull()) |idx1| {
+        const s1 = scanners.items[idx1];
+        for (scanners.items) |s2, idx2| {
+            if (idx2 == 0) {
+                continue;
+            }
+            if (trafos_to_parent.items[idx2]) |_| {
+                // We already know how to get from idx2 -> 0
+                continue;
+            }
+            //std.debug.print("Looking for trafo of scanners {} and {}\n", .{ idx1, idx2 });
+
+            if (relativePos(s1.items, s2.items)) |trafo| {
+                //std.debug.print("Trafo of scanners {} and {}: orient swizzle {}, relative position {}\n", .{
+                //    idx1,
+                //    idx2,
+                //    trafo.orient_idx,
+                //    trafo.rel_pos,
+                //});
+
+                trafos_to_parent.items[idx2] = .{
+                    .parent_idx = idx1,
+                    .orient_idx = trafo.orient_idx,
+                    .rel_pos = trafo.rel_pos,
+                };
+                try lookat_next.append(idx2);
+            }
+        }
+    }
+
+    var uniquePositions = std.AutoHashMap(u64, void).init(gpa);
+    defer uniquePositions.deinit();
+    for (scanners.items) |s, idx| {
+        for (s.items) |pos| {
+            const hash = transformToRoot(trafos_to_parent.items, idx, pos).uniqueHash();
+            try uniquePositions.put(hash, {});
+        }
+    }
+
+    std.debug.print("Day 19, part 1: num unique beacons = {}\n", .{uniquePositions.count()});
+
+    var max_dist: i16 = 0;
+    for (scanners.items) |_, idx1| {
+        for (scanners.items) |_, idx2| {
+            if (idx2 <= idx1) {
+                continue;
+            }
+
+            const pos1 = transformToRoot(trafos_to_parent.items, idx1, Vec3.init(0, 0, 0));
+            const pos2 = transformToRoot(trafos_to_parent.items, idx2, Vec3.init(0, 0, 0));
+            const diff = pos1.sub(pos2);
+
+            const manhatten_dist = (try std.math.absInt(diff.x)) + (try std.math.absInt(diff.y)) + (try std.math.absInt(diff.z));
+            if (manhatten_dist > max_dist) {
+                max_dist = manhatten_dist;
+            }
+        }
+    }
+
+    std.debug.print("Day 19, part 2: max manhatten dist = {}\n", .{max_dist});
 }
