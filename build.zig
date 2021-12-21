@@ -15,7 +15,7 @@ pub fn build(b: *std.build.Builder) void {
     const test_all = b.step("test_all", "Test all days");
 
     const days = [_]u32{
-        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
     };
 
     for (days) |day| {
