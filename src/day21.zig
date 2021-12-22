@@ -58,7 +58,7 @@ pub fn main() anyerror!void {
         if (scores[player_idx] >= 1000) {
             const num_rolls = 3 * (it + 1);
             const loser_score = scores[if (player_idx == 0) 1 else 0];
-            std.debug.print("loser score {}, num rolls {}\n", .{ loser_score, num_rolls });
+            //std.debug.print("loser score {}, num rolls {}\n", .{ loser_score, num_rolls });
             std.debug.print("Day 21, part 1: loser score * num rolls = {}\n", .{loser_score * num_rolls});
             break;
         }
