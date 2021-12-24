@@ -84,8 +84,10 @@ fn GenericState(comptime depth: usize) type {
         pub fn done(self: @This()) bool {
             for (self.rooms) |room, idx| {
                 const amphipod = @intToEnum(Cell, idx);
-                if (room[0] != amphipod or room[1] != amphipod) {
-                    return false;
+                for (room) |c| {
+                    if (c != amphipod) {
+                        return false;
+                    }
                 }
             }
             return true;
@@ -125,27 +127,22 @@ fn GenericState(comptime depth: usize) type {
             const junction_idx = junction_positions[amphipod_idx];
             std.debug.assert(self.hallway[junction_idx] == room);
 
-            const can_move_to_room0 = self.rooms[amphipod_idx][0] == Cell.empty;
-            const can_move_to_room1 =
-                self.rooms[amphipod_idx][0] == room and
-                self.rooms[amphipod_idx][1] == Cell.empty;
-
-            if (can_move_to_room0) {
-                std.debug.assert(self.rooms[amphipod_idx][1] == Cell.empty);
-                var new_state = self;
-                new_state.hallway[junction_idx] = Cell.junction;
-                new_state.rooms[amphipod_idx][0] = room;
-                new_state.energy += 2 * move_costs[amphipod_idx];
-                return new_state;
-            } else if (can_move_to_room1) {
-                var new_state = self;
-                new_state.hallway[junction_idx] = Cell.empty;
-                new_state.rooms[amphipod_idx][1] = room;
-                new_state.energy += move_costs[amphipod_idx];
-                return new_state;
-            } else {
-                return null;
+            // Select from the bottom the first slot that's empty and has
+            // only if no foreign amphipods are in the room.
+            for (self.rooms[amphipod_idx]) |c, lvl| {
+                if (c == Cell.empty) {
+                    var new_state = self;
+                    new_state.hallway[junction_idx] = Cell.junction;
+                    new_state.rooms[amphipod_idx][lvl] = room;
+                    new_state.energy += (depth - lvl) * move_costs[amphipod_idx];
+                    return new_state;
+                }
+                if (c != room) {
+                    break;
+                }
             }
+
+            return null;
         }
 
         // Move from a room to the junction in front of it.
@@ -154,28 +151,23 @@ fn GenericState(comptime depth: usize) type {
             const junction_idx = junction_positions[room_idx];
             defer std.debug.assert(self.hallway[junction_idx] != room);
 
-            const can_leave_room0 =
-                self.rooms[room_idx][1] == Cell.empty and
-                self.rooms[room_idx][0] != Cell.empty and
-                self.rooms[room_idx][0] != room;
-            const can_leave_room1 =
-                self.rooms[room_idx][1] != Cell.empty and
-                (self.rooms[room_idx][1] != room or
-                self.rooms[room_idx][0] != room);
+            var can_leave = false;
+            var lvl: usize = 0;
+            for (self.rooms[room_idx]) |c, i| {
+                if (c != room and c != Cell.empty) {
+                    can_leave = true;
+                }
+                if (c != Cell.empty) {
+                    lvl = i;
+                }
+            }
 
-            if (can_leave_room0) {
+            if (can_leave) {
                 var new_state = self;
-                const leave_type = new_state.rooms[room_idx][0];
-                new_state.rooms[room_idx][0] = Cell.empty;
+                const leave_type = new_state.rooms[room_idx][lvl];
+                new_state.rooms[room_idx][lvl] = Cell.empty;
                 new_state.hallway[junction_idx] = leave_type;
-                new_state.energy += 2 * move_costs[@enumToInt(leave_type)];
-                return new_state;
-            } else if (can_leave_room1) {
-                var new_state = self;
-                const leave_type = new_state.rooms[room_idx][1];
-                new_state.rooms[room_idx][1] = Cell.empty;
-                new_state.hallway[junction_idx] = leave_type;
-                new_state.energy += 1 * move_costs[@enumToInt(leave_type)];
+                new_state.energy += (depth - lvl) * move_costs[@enumToInt(leave_type)];
                 return new_state;
             } else {
                 return null;
@@ -299,7 +291,8 @@ pub fn main() anyerror!void {
     initial_state2.rooms[2][1] = Cell.A;
     initial_state2.rooms[3][2] = Cell.A;
     initial_state2.rooms[3][1] = Cell.C;
-    initial_state2.print();
+    //initial_state2.print();
 
-    std.debug.print("Day 23, part 2:\n", .{});
+    const min_energy2 = initial_state2.move(std.math.maxInt(usize));
+    std.debug.print("Day 23, part 2: min energy in extende burrow = {}\n", .{min_energy2});
 }
