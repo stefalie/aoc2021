@@ -1,3 +1,6 @@
+// p.s. In retrospect one is always smarter. Next time, use A*:
+// https://www.reddit.com/r/adventofcode/comments/rmnozs/comment/hpr7s4j/?utm_source=share&utm_medium=web2x&context=3
+
 const std = @import("std");
 const assert = std.debug.assert;
 
