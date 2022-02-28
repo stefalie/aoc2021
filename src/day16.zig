@@ -8,7 +8,7 @@ fn part2() void {
 }
 
 var general_purpose_allocator = std.heap.GeneralPurposeAllocator(.{}){};
-const gpa = &general_purpose_allocator.allocator;
+const gpa = general_purpose_allocator.allocator();
 
 const Result = struct {
     version: u32,

@@ -97,7 +97,7 @@ fn part1(random_numbers: []u7, boards: []Board) !void {
 }
 
 fn part2(random_numbers: []u7, boards: []Board) !void {
-    var active_boards = try std.DynamicBitSet.initFull(boards.len, gpa);
+    var active_boards = try std.DynamicBitSet.initFull(gpa, boards.len);
 
     const BingoLastLoser = struct {
         number: u7,
@@ -135,7 +135,7 @@ fn part2(random_numbers: []u7, boards: []Board) !void {
 }
 
 var general_purpose_allocator = std.heap.GeneralPurposeAllocator(.{}){};
-const gpa = &general_purpose_allocator.allocator;
+const gpa = general_purpose_allocator.allocator();
 
 pub fn main() anyerror!void {
     var boards = std.ArrayList(Board).init(gpa);

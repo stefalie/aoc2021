@@ -4,7 +4,7 @@ const assert = std.debug.assert;
 const data = @embedFile("../data/day10_input");
 
 var general_purpose_allocator = std.heap.GeneralPurposeAllocator(.{}){};
-const gpa = &general_purpose_allocator.allocator;
+const gpa = general_purpose_allocator.allocator();
 
 pub fn main() anyerror!void {
     var line_it = std.mem.tokenize(u8, data, "\r\n");

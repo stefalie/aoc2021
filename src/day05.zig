@@ -97,7 +97,7 @@ fn part2(segments: []Segment) !void {
 }
 
 var general_purpose_allocator = std.heap.GeneralPurposeAllocator(.{}){};
-const gpa = &general_purpose_allocator.allocator;
+const gpa = general_purpose_allocator.allocator();
 
 pub fn main() anyerror!void {
     var segments = std.ArrayList(Segment).init(gpa);

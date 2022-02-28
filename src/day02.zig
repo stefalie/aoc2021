@@ -58,7 +58,7 @@ fn part2(instructions: []Instruction) !void {
 
 pub fn main() anyerror!void {
     var general_purpose_allocator = std.heap.GeneralPurposeAllocator(.{}){};
-    const gpa = &general_purpose_allocator.allocator;
+    const gpa = general_purpose_allocator.allocator();
 
     var instructions = std.ArrayList(Instruction).init(gpa);
     defer instructions.deinit();

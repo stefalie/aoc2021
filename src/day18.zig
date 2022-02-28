@@ -4,7 +4,7 @@ const assert = std.debug.assert;
 const data = @embedFile("../data/day18_input");
 
 var general_purpose_allocator = std.heap.GeneralPurposeAllocator(.{}){};
-const gpa = &general_purpose_allocator.allocator;
+const gpa = general_purpose_allocator.allocator();
 
 const NodeData = union(enum) {
     value: usize,
@@ -21,7 +21,7 @@ const Node = struct {
 const Tree = struct {
     nodes: std.ArrayList(Node),
 
-    pub fn init(allocator: *std.mem.Allocator) Tree {
+    pub fn init(allocator: std.mem.Allocator) Tree {
         return .{
             .nodes = std.ArrayList(Node).init(allocator),
         };

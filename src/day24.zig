@@ -86,7 +86,7 @@ fn execProgram(instructions: []Inst, input: []const i8) ALU {
 }
 
 var general_purpose_allocator = std.heap.GeneralPurposeAllocator(.{}){};
-const gpa = &general_purpose_allocator.allocator;
+const gpa = general_purpose_allocator.allocator();
 
 fn parseOperand(operand_str: []const u8) !Operand {
     return switch (operand_str[0]) {
@@ -247,6 +247,7 @@ pub fn main() anyerror!void {
 }
 
 test "negate" {
+    // For the strings to work, make sure to set file format to unix!
     const source =
         \\inp x
         \\mul x -1

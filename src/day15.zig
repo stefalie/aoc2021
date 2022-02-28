@@ -4,7 +4,7 @@ const assert = std.debug.assert;
 const data = @embedFile("../data/day15_input");
 
 var general_purpose_allocator = std.heap.GeneralPurposeAllocator(.{}){};
-const gpa = &general_purpose_allocator.allocator;
+const gpa = general_purpose_allocator.allocator();
 
 const Node = struct {
     risk: u8 = undefined,

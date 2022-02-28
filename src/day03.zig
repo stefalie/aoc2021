@@ -107,7 +107,7 @@ fn part2(numbers: []u12) !void {
 
 pub fn main() anyerror!void {
     var general_purpose_allocator = std.heap.GeneralPurposeAllocator(.{}){};
-    const gpa = &general_purpose_allocator.allocator;
+    const gpa = general_purpose_allocator.allocator();
 
     var numbers = std.ArrayList(u12).init(gpa);
     defer numbers.deinit();

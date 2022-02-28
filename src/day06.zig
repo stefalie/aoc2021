@@ -27,7 +27,7 @@ fn simulateReplication(timers: []u8, num_days: usize) usize {
 }
 
 var general_purpose_allocator = std.heap.GeneralPurposeAllocator(.{}){};
-const gpa = &general_purpose_allocator.allocator;
+const gpa = general_purpose_allocator.allocator();
 
 pub fn main() anyerror!void {
     var timers = std.ArrayList(u8).init(gpa);

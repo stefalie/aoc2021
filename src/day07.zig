@@ -63,7 +63,7 @@ fn part2(positions: []u16) void {
 }
 
 var general_purpose_allocator = std.heap.GeneralPurposeAllocator(.{}){};
-const gpa = &general_purpose_allocator.allocator;
+const gpa = general_purpose_allocator.allocator();
 
 pub fn main() anyerror!void {
     var positions = std.ArrayList(u16).init(gpa);

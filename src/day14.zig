@@ -9,7 +9,7 @@ const Rule = struct {
 };
 
 var general_purpose_allocator = std.heap.GeneralPurposeAllocator(.{}){};
-const gpa = &general_purpose_allocator.allocator;
+const gpa = general_purpose_allocator.allocator();
 
 // The straigh forward way of doing it is unfortunately not fast enough for part
 // 2 and its 40 iterations.

@@ -73,7 +73,7 @@ fn part2RecursivePathFinding(nodes: []Node, edges: []Edge, start_idx: usize, cur
 }
 
 var general_purpose_allocator = std.heap.GeneralPurposeAllocator(.{}){};
-const gpa = &general_purpose_allocator.allocator;
+const gpa = general_purpose_allocator.allocator();
 
 const Node = struct {
     name: []const u8,

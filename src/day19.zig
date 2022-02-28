@@ -2,7 +2,7 @@ const std = @import("std");
 const assert = std.debug.assert;
 
 var general_purpose_allocator = std.heap.GeneralPurposeAllocator(.{}){};
-const gpa = &general_purpose_allocator.allocator;
+const gpa = general_purpose_allocator.allocator();
 
 const data = @embedFile("../data/day19_input");
 
